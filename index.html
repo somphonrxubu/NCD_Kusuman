@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="th" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบรายงานการให้บริการผู้ป่วยโรคเรื้อรัง คปสอ.กุสุมาลย์</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Sarabun', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      font-family: 'Sarabun', sans-serif;
+    }
+    
+    /* Smooth transitions */
+    .fade-in {
+      animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Number input spin buttons removal for modern feel */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col text-slate-800 antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- 1. LOADING SCREEN -->
+  <div id="loadingScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500">
+    <div class="relative flex items-center justify-center mb-6">
+      <div class="w-20 h-20 border-4 border-brand-100 border-t-brand-600 rounded-full animate-spin"></div>
+      <div class="absolute flex items-center justify-center w-12 h-12 bg-brand-50 text-brand-600 rounded-full shadow-inner">
+        <i class="fa-solid fa-notes-medical text-2xl"></i>
+      </div>
+    </div>
+    <h2 class="text-xl font-semibold text-slate-700 tracking-wide mb-1">กรุณารอสักครู่</h2>
+    <p class="text-sm text-slate-400 font-light">กำลังเชื่อมโยงฐานข้อมูล คปสอ.กุสุมาลย์...</p>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('home')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+          <i class="fa-solid fa-hospital-user text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-800 text-sm sm:text-base leading-tight">NCD Clinic Kusuman</h1>
+          <p class="text-xs text-brand-600 font-medium">คปสอ.กุสุมาลย์ จ.สกลนคร</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center">
+        <div id="currentDateTimeDisplay" class="flex items-center text-xs sm:text-sm text-slate-700 bg-slate-100/90 px-3.5 py-1.5 rounded-full border border-slate-200 font-medium shadow-2xs">
+          <i class="fa-regular fa-clock text-brand-600 mr-2"></i>
+          <span>กำลังโหลดวันที่และเวลา...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- VIEW 1: HOME PAGE -->
+    <section id="viewHome" class="fade-in py-8 md:py-16">
+      <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-2">
+          ระบบรายงานการให้บริการผู้ป่วยโรคเรื้อรัง
+        </h2>
+        <p class="text-lg sm:text-xl md:text-2xl font-bold text-brand-600 tracking-normal mb-4">
+          คปสอ.กุสุมาลย์ จังหวัดสกลนคร
+        </p>
+        <div class="inline-flex items-center gap-2 bg-brand-50 border border-brand-200 text-brand-700 px-5 py-1.5 rounded-full text-sm sm:text-base md:text-lg font-semibold shadow-xs">
+          <i class="fa-regular fa-calendar-check text-xs sm:text-sm"></i>
+          <span>ปีงบประมาณ 2570</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons (2 Primary Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <!-- Button 1: Record Data -->
+        <button onclick="navigateTo('form')" class="group relative text-left p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-brand-500 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-brand-50 rounded-bl-full -mr-6 -mt-6 transition-all group-hover:scale-110"></div>
+          <div class="relative z-10 flex flex-col h-full justify-between">
+            <div class="w-14 h-14 rounded-2xl bg-brand-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-brand-600/30 mb-6 group-hover:scale-105 transition-transform">
+              <i class="fa-solid fa-file-pen"></i>
+            </div>
+            <div>
+              <h3 class="text-xl sm:text-2xl font-bold text-slate-800 mb-6 group-hover:text-brand-600 transition-colors">
+                บันทึกข้อมูลการให้บริการ
+              </h3>
+            </div>
+            <div class="flex items-center text-brand-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+              <span>คลิกเพื่อบันทึกข้อมูล</span>
+              <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+            </div>
+          </div>
+        </button>
+
+        <!-- Button 2: Summary Dashboard -->
+        <button onclick="navigateTo('summary')" class="group relative text-left p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-teal-500 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-bl-full -mr-6 -mt-6 transition-all group-hover:scale-110"></div>
+          <div class="relative z-10 flex flex-col h-full justify-between">
+            <div class="w-14 h-14 rounded-2xl bg-teal-600 text-white flex items-center justify-center text-2xl shadow-lg shadow-teal-600/30 mb-6 group-hover:scale-105 transition-transform">
+              <i class="fa-solid fa-chart-pie"></i>
+            </div>
+            <div>
+              <h3 class="text-xl sm:text-2xl font-bold text-slate-800 mb-6 group-hover:text-teal-600 transition-colors">
+                สรุปข้อมูลการให้บริการ
+              </h3>
+            </div>
+            <div class="flex items-center text-teal-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+              <span>คลิกเพื่อดูข้อมูลสรุป</span>
+              <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Quick Hospital List Info Footer in Home -->
+      <div class="mt-16 max-w-4xl mx-auto pt-8 border-t border-slate-200/60 text-center">
+        <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-3">หน่วยบริการเครือข่าย คปสอ.กุสุมาลย์ (6 รพ.สต.)</p>
+        <div class="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600">
+          <span class="bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">รพ.สต.บ้านบอน</span>
+          <span class="bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">รพ.สต.บ้านนาเพียงใหม่</span>
+          <span class="bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">รพ.สต.บ้านโพธิไพศาล</span>
+          <span class="bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">รพ.สต.บ้านห้วยกอก</span>
+          <span class="bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">รพ.สต.บ้านแสนพัน</span>
+          <span class="bg-white px-3 py-1 rounded-full border border-slate-200 shadow-2xs">รพ.สต.บ้านหนองบัวสร้าง</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: FORM PAGE -->
+    <section id="viewForm" class="hidden fade-in max-w-3xl mx-auto pb-12">
+      <!-- Top header bar with Back button -->
+      <div class="flex items-center justify-between mb-6">
+        <button onclick="navigateTo('home')" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+          <i class="fa-solid fa-arrow-left mr-2"></i> กลับหน้าหลัก
+        </button>
+        <span class="text-xs text-slate-400">ระบบบันทึกข้อมูลบริการ</span>
+      </div>
+
+      <div class="bg-white rounded-3xl border border-slate-200/90 shadow-lg p-6 sm:p-10">
+        <div class="border-b border-slate-100 pb-5 mb-8">
+          <div class="flex items-start">
+            <span class="w-3 h-8 bg-brand-600 rounded-full mr-3 inline-block mt-0.5"></span>
+            <div>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                บันทึกข้อมูลการให้บริการ
+              </h2>
+              <p class="text-sm text-slate-500 font-medium mt-1">ผู้ป่วยโรคเรื้อรัง คปสอ.กุสุมาลย์</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="recordForm" onsubmit="handleFormSubmit(event)" class="space-y-8">
+          
+          <!-- Service Unit Selection -->
+          <div class="bg-slate-50/80 p-5 rounded-2xl border border-slate-200/70">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              <i class="fa-solid fa-hospital text-brand-600 mr-1.5"></i> ข้อมูลหน่วยบริการ <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <select id="hospitalSelect" required class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 font-medium focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all appearance-none cursor-pointer">
+                <option value="" disabled selected>-- เลือกหน่วยบริการ รพ.สต. --</option>
+                <option value="รพ.สต.บ้านบอน">รพ.สต.บ้านบอน</option>
+                <option value="รพ.สต.บ้านนาเพียงใหม่">รพ.สต.บ้านนาเพียงใหม่</option>
+                <option value="รพ.สต.บ้านโพธิไพศาล">รพ.สต.บ้านโพธิไพศาล</option>
+                <option value="รพ.สต.บ้านห้วยกอก">รพ.สต.บ้านห้วยกอก</option>
+                <option value="รพ.สต.บ้านแสนพัน">รพ.สต.บ้านแสนพัน</option>
+                <option value="รพ.สต.บ้านหนองบัวสร้าง">รพ.สต.บ้านหนองบัวสร้าง</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Date with Thai Calendar -->
+          <div class="bg-slate-50/80 p-5 rounded-2xl border border-slate-200/70">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">
+              <i class="fa-regular fa-calendar-check text-brand-600 mr-1.5"></i> วันที่ให้บริการ <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <!-- Visual Thai Date Display (Clickable) -->
+              <div onclick="openThaiCalendar()" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 font-medium flex items-center justify-between cursor-pointer hover:border-brand-500 focus:ring-2 focus:ring-brand-500 transition-all shadow-xs">
+                <span id="displayThaiDate" class="text-base text-slate-800">1 ตุลาคม 2569</span>
+                <i class="fa-solid fa-calendar-days text-brand-600"></i>
+              </div>
+              <input type="hidden" id="serviceDate" name="serviceDate" value="">
+            </div>
+          </div>
+
+          <!-- Service Data -->
+          <div class="space-y-6">
+            <h3 class="text-base font-bold text-slate-800 border-b border-slate-200 pb-2">
+              ข้อมูลการให้บริการ
+            </h3>
+
+            <!-- Patient Count by Color Group -->
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-semibold text-slate-700">จำนวนผู้ป่วยรับบริการวันนี้ (จำแนกตามสี)</h4>
+                <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded">หน่วย: ราย</span>
+              </div>
+
+              <!-- General Group (กลุ่มทั่วไป) -->
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">กลุ่มทั่วไป</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <!-- Green -->
+                  <div class="bg-white p-3 rounded-xl border border-emerald-200 shadow-2xs">
+                    <div class="flex items-center space-x-1.5 mb-1.5">
+                      <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                      <span class="text-xs font-semibold text-emerald-800">สีเขียว</span>
+                    </div>
+                    <input type="number" min="0" value="0" id="colorGreen" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-emerald-50/40 rounded-lg py-2 border border-emerald-200 focus:ring-2 focus:ring-emerald-500">
+                  </div>
+                  <!-- Yellow -->
+                  <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-2xs">
+                    <div class="flex items-center space-x-1.5 mb-1.5">
+                      <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+                      <span class="text-xs font-semibold text-amber-800">สีเหลือง</span>
+                    </div>
+                    <input type="number" min="0" value="0" id="colorYellow" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-amber-50/40 rounded-lg py-2 border border-amber-200 focus:ring-2 focus:ring-amber-500">
+                  </div>
+                  <!-- Orange -->
+                  <div class="bg-white p-3 rounded-xl border border-orange-200 shadow-2xs">
+                    <div class="flex items-center space-x-1.5 mb-1.5">
+                      <span class="w-3 h-3 rounded-full bg-orange-500 inline-block"></span>
+                      <span class="text-xs font-semibold text-orange-800">สีส้ม</span>
+                    </div>
+                    <input type="number" min="0" value="0" id="colorOrange" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-orange-50/40 rounded-lg py-2 border border-orange-200 focus:ring-2 focus:ring-orange-500">
+                  </div>
+                  <!-- Red -->
+                  <div class="bg-white p-3 rounded-xl border border-rose-200 shadow-2xs">
+                    <div class="flex items-center space-x-1.5 mb-1.5">
+                      <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                      <span class="text-xs font-semibold text-rose-800">สีแดง</span>
+                    </div>
+                    <input type="number" min="0" value="0" id="colorRed" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-rose-50/40 rounded-lg py-2 border border-rose-200 focus:ring-2 focus:ring-rose-500">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Complex Group (กลุ่มซับซ้อน) -->
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">กลุ่มซับซ้อน</p>
+                <div class="max-w-xs bg-white p-3 rounded-xl border border-slate-300 shadow-2xs">
+                  <div class="flex items-center space-x-1.5 mb-1.5">
+                    <span class="w-3 h-3 rounded-full bg-slate-900 inline-block"></span>
+                    <span class="text-xs font-semibold text-slate-900">สีดำ</span>
+                  </div>
+                  <input type="number" min="0" value="0" id="colorBlack" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-slate-100 rounded-lg py-2 border border-slate-300 focus:ring-2 focus:ring-slate-800">
+                </div>
+              </div>
+            </div>
+
+            <!-- Service Types -->
+            <div class="space-y-4 pt-2">
+              <h4 class="text-sm font-semibold text-slate-700">จำนวนผู้ป่วยจำแนกตามประเภทการมารับบริการ</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">พบแพทย์ที่ รพ.สต.</label>
+                  <div class="relative">
+                    <input type="number" min="0" value="0" id="serviceDoctor" oninput="calculateTelepharmacy()" class="w-full text-center font-black text-xl sm:text-2xl py-2 pr-8 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-brand-500">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">ราย</span>
+                  </div>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">พบแพทย์ทาง Telemedicine</label>
+                  <div class="relative">
+                    <input type="number" min="0" value="0" id="serviceTelemed" oninput="calculateTelepharmacy()" class="w-full text-center font-black text-xl sm:text-2xl py-2 pr-8 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-brand-500">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">ราย</span>
+                  </div>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">พบเภสัชกรทาง Telepharmacy</label>
+                  <div class="relative">
+                    <input type="number" min="0" value="0" id="serviceTelepharm" readonly class="w-full text-center font-black text-xl sm:text-2xl py-2 pr-8 rounded-xl border border-slate-300 bg-white text-slate-800 cursor-not-allowed">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">ราย</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Other Data -->
+            <div class="space-y-4 pt-2">
+              <h4 class="text-sm font-semibold text-slate-700">ข้อมูลอื่นๆ</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <label class="block text-xs font-medium text-slate-600 mb-1">ส่งต่อ รพ.กุสุมาลย์</label>
+                  <div class="relative">
+                    <input type="number" min="0" value="0" id="otherRefer" class="w-full text-center font-black text-xl sm:text-2xl text-slate-800 py-2 pr-8 rounded-xl border border-slate-300 bg-white">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">ราย</span>
+                  </div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <label class="block text-xs font-medium text-slate-600 mb-1 leading-tight">ส่งกลับรับยา รพ.กุสุมาลย์ ครั้งถัดไป</label>
+                  <div class="relative">
+                    <input type="number" min="0" value="0" id="otherReturn" class="w-full text-center font-black text-xl sm:text-2xl text-slate-800 py-2 pr-8 rounded-xl border border-slate-300 bg-white">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">ราย</span>
+                  </div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <label class="block text-xs font-medium text-slate-600 mb-1">นัดตรวจ Lab เพิ่มเติม</label>
+                  <div class="relative">
+                    <input type="number" min="0" value="0" id="otherLab" class="w-full text-center font-black text-xl sm:text-2xl text-slate-800 py-2 pr-8 rounded-xl border border-slate-300 bg-white">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">ราย</span>
+                  </div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <label class="block text-xs font-medium text-slate-600 mb-1">นัดตรวจ EKG</label>
+                  <div class="relative">
+                    <input type="number" min="0" value="0" id="otherEkg" class="w-full text-center font-black text-xl sm:text-2xl text-slate-800 py-2 pr-8 rounded-xl border border-slate-300 bg-white">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">ราย</span>
+                  </div>
+                </div>
+
+                <div class="bg-rose-50/50 p-3 rounded-2xl border border-rose-200">
+                  <label class="block text-xs font-medium text-rose-700 mb-1">ผู้ป่วยขาดนัด</label>
+                  <div class="relative">
+                    <input type="number" min="0" value="0" id="otherMissed" class="w-full text-center font-black text-xl sm:text-2xl text-rose-700 py-2 pr-8 rounded-xl border border-rose-300 bg-white">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-rose-400 pointer-events-none">ราย</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3 justify-end items-center">
+            <button type="button" onclick="navigateTo('home')" class="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 text-sm font-medium transition-colors">
+              ยกเลิก
+            </button>
+            <button type="submit" id="submitBtn" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-600/30 transition-all flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span>บันทึกข้อมูลลงระบบ</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- VIEW 3: SUMMARY DASHBOARD -->
+    <section id="viewSummary" class="hidden fade-in space-y-8 pb-16">
+      
+      <!-- Top header bar with Back button & Controls -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <button onclick="navigateTo('home')" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors mb-2">
+            <i class="fa-solid fa-arrow-left mr-2"></i> กลับหน้าหลัก
+          </button>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            สรุปข้อมูลการให้บริการ
+          </h2>
+          <p class="text-sm text-brand-600 font-medium mt-0.5">ผู้ป่วยโรคเรื้อรัง คปสอ.กุสุมาลย์</p>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button onclick="fetchSheetData()" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition-all">
+            <i class="fa-solid fa-rotate mr-1.5 text-brand-600"></i> รีเฟรชข้อมูล
+          </button>
+        </div>
+      </div>
+
+      <!-- SECTION 1: ภาพรวม คปสอ.กุสุมาลย์ -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-6 bg-brand-600 rounded-full inline-block"></span>
+            <h3 class="text-lg font-bold text-slate-800">สรุปข้อมูลภาพรวม คปสอ.กุสุมาลย์</h3>
+          </div>
+        </div>
+
+        <!-- Hero Metric Card: Total Patients -->
+        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+          <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-brand-500/10 rounded-full blur-2xl"></div>
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <p class="text-xs sm:text-sm font-medium uppercase tracking-wider text-teal-300">จำนวนผู้ป่วยรับบริการทั้งหมด</p>
+              <div class="flex items-baseline space-x-3 mt-1">
+                <span id="sumTotalPatients" class="text-4xl sm:text-6xl font-black tracking-tight text-white">0</span>
+                <span class="text-xl sm:text-2xl font-light text-slate-300">ราย</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-2">ยอดผู้ป่วยสะสมทุก รพ.สต.</p>
+            </div>
+
+            <!-- Breakdown General vs Complex -->
+            <div class="grid grid-cols-2 gap-3 sm:gap-4 w-full md:w-auto">
+              <!-- General Group (โทนสีเขียว สอดคล้องกับกลุ่มทั่วไป) -->
+              <div class="bg-emerald-950/70 border border-emerald-500/30 backdrop-blur-md rounded-2xl p-4 shadow-inner">
+                <div class="flex items-center space-x-1.5 mb-1">
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                  <span class="text-xs font-semibold text-emerald-300 block">กลุ่มทั่วไป</span>
+                </div>
+                <div class="flex items-baseline space-x-1.5">
+                  <span id="sumGeneralPatients" class="text-2xl sm:text-3xl font-extrabold text-emerald-400">0</span>
+                  <span class="text-xs text-emerald-200/80">ราย</span>
+                </div>
+              </div>
+
+              <!-- Complex Group (โทนสีเข้ม/ดำ สอดคล้องกับกลุ่มซับซ้อนสีดำ) -->
+              <div class="bg-black/60 border border-slate-700/80 backdrop-blur-md rounded-2xl p-4 shadow-inner">
+                <div class="flex items-center space-x-1.5 mb-1">
+                  <span class="w-2 h-2 rounded-full bg-slate-300 inline-block border border-slate-500"></span>
+                  <span class="text-xs font-semibold text-slate-300 block">กลุ่มซับซ้อน (สีดำ)</span>
+                </div>
+                <div class="flex items-baseline space-x-1.5">
+                  <span id="sumComplexPatients" class="text-2xl sm:text-3xl font-extrabold text-white">0</span>
+                  <span class="text-xs text-slate-400">ราย</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Cards Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- 1. Color Categories Summary -->
+          <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+            <div>
+              <h4 class="text-sm font-bold text-slate-700 flex items-center mb-4">
+                <i class="fa-solid fa-layer-group text-brand-600 mr-2"></i> จำแนกตามกลุ่มสี
+              </h4>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                    <span class="text-sm font-semibold text-emerald-900">สีเขียว</span>
+                  </div>
+                  <span id="sumColorGreen" class="text-base font-extrabold text-emerald-800">0 ราย</span>
+                </div>
+
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-amber-50/70 border border-amber-100">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+                    <span class="text-sm font-semibold text-amber-900">สีเหลือง</span>
+                  </div>
+                  <span id="sumColorYellow" class="text-base font-extrabold text-amber-800">0 ราย</span>
+                </div>
+
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-orange-50/70 border border-orange-100">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-orange-500"></span>
+                    <span class="text-sm font-semibold text-orange-900">สีส้ม</span>
+                  </div>
+                  <span id="sumColorOrange" class="text-base font-extrabold text-orange-800">0 ราย</span>
+                </div>
+
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-rose-50/70 border border-rose-100">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-rose-500"></span>
+                    <span class="text-sm font-semibold text-rose-900">สีแดง</span>
+                  </div>
+                  <span id="sumColorRed" class="text-base font-extrabold text-rose-800">0 ราย</span>
+                </div>
+
+                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-100 border border-slate-300">
+                  <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 rounded-full bg-slate-900"></span>
+                    <span class="text-sm font-semibold text-slate-800">สีดำ (ซับซ้อน)</span>
+                  </div>
+                  <span id="sumColorBlack" class="text-base font-extrabold text-slate-900">0 ราย</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Service Types Summary -->
+          <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+            <div>
+              <h4 class="text-sm font-bold text-slate-700 flex items-center mb-4">
+                <i class="fa-solid fa-stethoscope text-teal-600 mr-2"></i> ประเภทการมารับบริการ
+              </h4>
+              <div class="space-y-4">
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                  <div>
+                    <span class="text-xs text-slate-500 font-medium block">พบแพทย์ที่ รพ.สต.</span>
+                    <span class="text-xs text-slate-400">On-site Consultation</span>
+                  </div>
+                  <span id="sumDoctor" class="text-2xl font-bold text-slate-800">0 <span class="text-xs font-normal text-slate-500">ราย</span></span>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                  <div>
+                    <span class="text-xs text-slate-500 font-medium block">พบแพทย์ผ่านระบบการแพทย์ทางไกล</span>
+                    <span class="text-xs text-slate-400">Telemedicine</span>
+                  </div>
+                  <span id="sumTelemed" class="text-2xl font-bold text-slate-800">0 <span class="text-xs font-normal text-slate-500">ราย</span></span>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                  <div>
+                    <span class="text-xs text-slate-500 font-medium block">พบเภสัชกรผ่านระบบเภสัชกรรมทางไกล</span>
+                    <span class="text-xs text-slate-400">Telepharmacy</span>
+                  </div>
+                  <span id="sumTelepharm" class="text-2xl font-bold text-slate-800">0 <span class="text-xs font-normal text-slate-500">ราย</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Other Clinical Metrics Summary -->
+          <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+            <div>
+              <h4 class="text-sm font-bold text-slate-700 flex items-center mb-4">
+                <i class="fa-solid fa-clipboard-list text-cyan-600 mr-2"></i> ข้อมูลอื่นๆ
+              </h4>
+              <ul class="divide-y divide-slate-100">
+                <li class="py-2.5 flex items-center justify-between text-sm">
+                  <span class="text-slate-600">ส่งต่อ รพ.กุสุมาลย์</span>
+                  <span id="sumRefer" class="font-bold text-slate-800">0 ราย</span>
+                </li>
+                <li class="py-2.5 flex items-center justify-between text-sm">
+                  <span class="text-slate-600">ส่งกลับรับยา รพ.กุสุมาลย์ visit ถัดไป</span>
+                  <span id="sumReturn" class="font-bold text-slate-800">0 ราย</span>
+                </li>
+                <li class="py-2.5 flex items-center justify-between text-sm">
+                  <span class="text-slate-600">นัดตรวจ Lab เพิ่มเติม</span>
+                  <span id="sumLab" class="font-bold text-slate-800">0 ราย</span>
+                </li>
+                <li class="py-2.5 flex items-center justify-between text-sm">
+                  <span class="text-slate-600">นัดตรวจ EKG</span>
+                  <span id="sumEkg" class="font-bold text-slate-800">0 ราย</span>
+                </li>
+                <li class="py-2.5 flex items-center justify-between text-sm bg-rose-50/40 px-2 rounded-lg">
+                  <span class="text-rose-700 font-medium">ผู้ป่วยขาดนัด</span>
+                  <span id="sumMissed" class="font-bold text-rose-700">0 ราย</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SECTION 2: สรุปข้อมูลแยกราย รพ.สต. (6 ปุ่ม) -->
+      <div class="space-y-4 pt-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-6 bg-teal-600 rounded-full inline-block"></span>
+            <h3 class="text-lg font-bold text-slate-800">สรุปข้อมูลแยกราย รพ.สต.</h3>
+          </div>
+          <span class="text-xs text-slate-400">คลิกที่ชื่อ รพ.สต. เพื่อดูรายละเอียดเพิ่มเติม</span>
+        </div>
+
+        <!-- 6 Hospital Buttons Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- 1. บ้านบอน -->
+          <button onclick="openHospitalSummaryModal('รพ.สต.บ้านบอน')" class="group text-left p-5 rounded-2xl bg-white border border-slate-200 hover:border-brand-500 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-base group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-house-medical"></i>
+              </div>
+              <span class="text-xs text-slate-400 group-hover:text-brand-600 transition-colors">ดูรายละเอียด <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+            </div>
+            <h4 class="text-base font-bold text-slate-800 group-hover:text-brand-600 transition-colors">รพ.สต.บ้านบอน</h4>
+            <div class="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <span>ผู้ป่วยสะสม:</span>
+              <span id="cardCount-รพ.สต.บ้านบอน" class="font-bold text-slate-800 text-sm">0 ราย</span>
+            </div>
+          </button>
+
+          <!-- 2. บ้านนาเพียงใหม่ -->
+          <button onclick="openHospitalSummaryModal('รพ.สต.บ้านนาเพียงใหม่')" class="group text-left p-5 rounded-2xl bg-white border border-slate-200 hover:border-brand-500 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-base group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-house-medical"></i>
+              </div>
+              <span class="text-xs text-slate-400 group-hover:text-brand-600 transition-colors">ดูรายละเอียด <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+            </div>
+            <h4 class="text-base font-bold text-slate-800 group-hover:text-brand-600 transition-colors">รพ.สต.บ้านนาเพียงใหม่</h4>
+            <div class="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <span>ผู้ป่วยสะสม:</span>
+              <span id="cardCount-รพ.สต.บ้านนาเพียงใหม่" class="font-bold text-slate-800 text-sm">0 ราย</span>
+            </div>
+          </button>
+
+          <!-- 3. บ้านโพธิไพศาล -->
+          <button onclick="openHospitalSummaryModal('รพ.สต.บ้านโพธิไพศาล')" class="group text-left p-5 rounded-2xl bg-white border border-slate-200 hover:border-brand-500 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-base group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-house-medical"></i>
+              </div>
+              <span class="text-xs text-slate-400 group-hover:text-brand-600 transition-colors">ดูรายละเอียด <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+            </div>
+            <h4 class="text-base font-bold text-slate-800 group-hover:text-brand-600 transition-colors">รพ.สต.บ้านโพธิไพศาล</h4>
+            <div class="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <span>ผู้ป่วยสะสม:</span>
+              <span id="cardCount-รพ.สต.บ้านโพธิไพศาล" class="font-bold text-slate-800 text-sm">0 ราย</span>
+            </div>
+          </button>
+
+          <!-- 4. บ้านห้วยกอก -->
+          <button onclick="openHospitalSummaryModal('รพ.สต.บ้านห้วยกอก')" class="group text-left p-5 rounded-2xl bg-white border border-slate-200 hover:border-brand-500 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-base group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-house-medical"></i>
+              </div>
+              <span class="text-xs text-slate-400 group-hover:text-brand-600 transition-colors">ดูรายละเอียด <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+            </div>
+            <h4 class="text-base font-bold text-slate-800 group-hover:text-brand-600 transition-colors">รพ.สต.บ้านห้วยกอก</h4>
+            <div class="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <span>ผู้ป่วยสะสม:</span>
+              <span id="cardCount-รพ.สต.บ้านห้วยกอก" class="font-bold text-slate-800 text-sm">0 ราย</span>
+            </div>
+          </button>
+
+          <!-- 5. บ้านแสนพัน -->
+          <button onclick="openHospitalSummaryModal('รพ.สต.บ้านแสนพัน')" class="group text-left p-5 rounded-2xl bg-white border border-slate-200 hover:border-brand-500 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-base group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-house-medical"></i>
+              </div>
+              <span class="text-xs text-slate-400 group-hover:text-brand-600 transition-colors">ดูรายละเอียด <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+            </div>
+            <h4 class="text-base font-bold text-slate-800 group-hover:text-brand-600 transition-colors">รพ.สต.บ้านแสนพัน</h4>
+            <div class="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <span>ผู้ป่วยสะสม:</span>
+              <span id="cardCount-รพ.สต.บ้านแสนพัน" class="font-bold text-slate-800 text-sm">0 ราย</span>
+            </div>
+          </button>
+
+          <!-- 6. บ้านหนองบัวสร้าง -->
+          <button onclick="openHospitalSummaryModal('รพ.สต.บ้านหนองบัวสร้าง')" class="group text-left p-5 rounded-2xl bg-white border border-slate-200 hover:border-brand-500 hover:shadow-md transition-all duration-200">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-base group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-house-medical"></i>
+              </div>
+              <span class="text-xs text-slate-400 group-hover:text-brand-600 transition-colors">ดูรายละเอียด <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+            </div>
+            <h4 class="text-base font-bold text-slate-800 group-hover:text-brand-600 transition-colors">รพ.สต.บ้านหนองบัวสร้าง</h4>
+            <div class="flex items-center justify-between mt-2 text-xs text-slate-500">
+              <span>ผู้ป่วยสะสม:</span>
+              <span id="cardCount-รพ.สต.บ้านหนองบัวสร้าง" class="font-bold text-slate-800 text-sm">0 ราย</span>
+            </div>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: สรุปข้อมูลแยกราย รพ.สต. (POPUP) -->
+  <div id="hospitalModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden fade-in max-h-[90vh] flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="p-5 sm:p-6 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center text-lg shadow-sm">
+            <i class="fa-solid fa-hospital-user"></i>
+          </div>
+          <div>
+            <h3 id="modalHospitalTitle" class="text-lg sm:text-xl font-bold text-slate-900 leading-tight">รพ.สต.บ้านบอน</h3>
+            <p id="modalHospitalSubtitle" class="text-xs text-brand-600 font-medium">สรุปข้อมูลการให้บริการผู้ป่วยโรคเรื้อรัง</p>
+          </div>
+        </div>
+        <button onclick="closeHospitalModal()" class="w-9 h-9 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-6 overflow-y-auto space-y-6 flex-1">
+        
+        <!-- Big Number Total -->
+        <div class="bg-gradient-to-br from-emerald-50 to-teal-50/50 border border-emerald-200/90 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <span id="modalMetricScope" class="text-xs font-semibold text-emerald-800 uppercase tracking-wide">จำนวนผู้ป่วยรับบริการทั้งหมด</span>
+            <div class="flex items-baseline space-x-2 mt-1">
+              <span id="modalTotalPatients" class="text-4xl font-extrabold text-emerald-950">0</span>
+              <span class="text-sm font-medium text-emerald-700">ราย</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap sm:flex-nowrap gap-2.5 w-full sm:w-auto">
+            <!-- การ์ดกลุ่มทั่วไป: โทนสีเขียวสุขภาพ -->
+            <div class="flex-1 sm:flex-initial bg-emerald-100/80 px-3.5 py-2 rounded-xl border border-emerald-300/80 shadow-2xs">
+              <div class="flex items-center space-x-1.5 mb-0.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                <span class="text-[11px] font-semibold text-emerald-800 block">กลุ่มทั่วไป</span>
+              </div>
+              <span id="modalGeneralPatients" class="font-extrabold text-emerald-900 text-sm sm:text-base">0 ราย</span>
+            </div>
+            <!-- การ์ดกลุ่มซับซ้อน: โทนสีดำเข้ม สอดคล้องกับกลุ่มสีดำ -->
+            <div class="flex-1 sm:flex-initial bg-slate-900 px-3.5 py-2 rounded-xl border border-slate-800 shadow-2xs text-white">
+              <div class="flex items-center space-x-1.5 mb-0.5">
+                <span class="w-2 h-2 rounded-full bg-slate-300 inline-block"></span>
+                <span class="text-[11px] font-semibold text-slate-300 block">กลุ่มซับซ้อน (ดำ)</span>
+              </div>
+              <span id="modalComplexPatients" class="font-extrabold text-white text-sm sm:text-base">0 ราย</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Metric Columns in Modal -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- Column 1: Groups -->
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <h5 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">1. จำแนกตามกลุ่มสี</h5>
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between p-1.5 rounded bg-white border border-emerald-100">
+                <span class="text-emerald-800">สีเขียว</span>
+                <span id="modalColorGreen" class="font-bold text-emerald-700">0 ราย</span>
+              </div>
+              <div class="flex justify-between p-1.5 rounded bg-white border border-amber-100">
+                <span class="text-amber-800">สีเหลือง</span>
+                <span id="modalColorYellow" class="font-bold text-amber-700">0 ราย</span>
+              </div>
+              <div class="flex justify-between p-1.5 rounded bg-white border border-orange-100">
+                <span class="text-orange-800">สีส้ม</span>
+                <span id="modalColorOrange" class="font-bold text-orange-700">0 ราย</span>
+              </div>
+              <div class="flex justify-between p-1.5 rounded bg-white border border-rose-100">
+                <span class="text-rose-800">สีแดง</span>
+                <span id="modalColorRed" class="font-bold text-rose-700">0 ราย</span>
+              </div>
+              <div class="flex justify-between p-1.5 rounded bg-white border border-slate-300">
+                <span class="text-slate-900 font-semibold">สีดำ</span>
+                <span id="modalColorBlack" class="font-bold text-slate-900">0 ราย</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Types -->
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <h5 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">2. ประเภทการมารับบริการ</h5>
+            <div class="space-y-2 text-xs">
+              <div class="p-2 rounded bg-white border border-slate-200">
+                <span class="text-slate-500 block">พบแพทย์ที่ รพ.สต.</span>
+                <span id="modalDoctor" class="text-sm font-bold text-slate-800">0 ราย</span>
+              </div>
+              <div class="p-2 rounded bg-white border border-slate-200">
+                <span class="text-slate-500 block">พบแพทย์ผ่านระบบการแพทย์ทางไกล</span>
+                <span id="modalTelemed" class="text-sm font-bold text-slate-800">0 ราย</span>
+              </div>
+              <div class="p-2 rounded bg-white border border-slate-200">
+                <span class="text-slate-500 block">พบเภสัชกรผ่านระบบเภสัชกรรมทางไกล</span>
+                <span id="modalTelepharm" class="text-sm font-bold text-slate-800">0 ราย</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 3: Others -->
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <h5 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">3. ข้อมูลอื่นๆ</h5>
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between py-1 border-b border-slate-200">
+                <span class="text-slate-600">ส่งต่อ รพ.กุสุมาลย์</span>
+                <span id="modalRefer" class="font-bold text-slate-800">0 ราย</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-200">
+                <span class="text-slate-600">ส่งกลับรับยา รพ.กุสุมาลย์</span>
+                <span id="modalReturn" class="font-bold text-slate-800">0 ราย</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-200">
+                <span class="text-slate-600">นัดตรวจ Lab เพิ่มเติม</span>
+                <span id="modalLab" class="font-bold text-slate-800">0 ราย</span>
+              </div>
+              <div class="flex justify-between py-1 border-b border-slate-200">
+                <span class="text-slate-600">นัดตรวจ EKG</span>
+                <span id="modalEkg" class="font-bold text-slate-800">0 ราย</span>
+              </div>
+              <div class="flex justify-between py-1 text-rose-700 font-medium">
+                <span>ผู้ป่วยขาดนัด</span>
+                <span id="modalMissed" class="font-bold text-rose-700">0 ราย</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Date Selection Footer (ส่วนล่างของหน้าแยกแต่ละ รพ.สต.) -->
+        <div class="bg-slate-50/90 rounded-2xl p-4 border border-slate-200">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <h5 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center">
+              <i class="fa-solid fa-calendar-day text-brand-600 mr-1.5"></i>
+              เลือกวันที่ให้บริการ เพื่อดูสรุปเฉพาะวันนั้นๆ
+            </h5>
+            <button id="btnResetDateFilter" onclick="resetHospitalDateFilter()" class="hidden text-xs text-brand-600 hover:underline font-medium">
+              <i class="fa-solid fa-rotate-left mr-1"></i> ดูรวมทุกวัน
+            </button>
+          </div>
+
+          <!-- Date Pills Container -->
+          <div id="modalDatePills" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto py-1">
+            <!-- Dynamic Date buttons generated via JS -->
+            <span class="text-xs text-slate-400">ยังไม่มีประวัติการบันทึกข้อมูลของ รพ.สต. นี้</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <button onclick="closeHospitalModal()" class="px-5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs transition-colors">
+          ปิดหน้าต่าง
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: Success Popup after submission -->
+  <div id="successModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 sm:p-8 text-center shadow-2xl border border-slate-100 fade-in">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900 mb-1">บันทึกข้อมูลเรียบร้อยแล้ว</h3>
+      <p class="text-xs text-slate-500 mb-6">ข้อมูลการให้บริการผู้ป่วยโรคเรื้อรังถูกบันทึกลงระบบ Google Sheet เรียบร้อยแล้ว</p>
+      
+      <button onclick="closeSuccessModalAndGoHome()" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-600/30 transition-all">
+        ปิด และย้อนกลับไปที่หน้าหลัก
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: Custom Thai Calendar Picker (Week starts Sunday) -->
+  <div id="calendarModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-3xl shadow-xl border border-slate-200 p-5 fade-in">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h4 id="calMonthYearText" class="font-bold text-slate-800 text-base">ตุลาคม 2569</h4>
+        </div>
+        <div class="flex items-center space-x-1">
+          <button onclick="changeCalMonth(-1)" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center">
+            <i class="fa-solid fa-chevron-left text-xs"></i>
+          </button>
+          <button onclick="changeCalMonth(1)" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Calendar Day Names Header (Sunday to Saturday) -->
+      <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold mb-2">
+        <span class="text-rose-500 py-1">อา.</span>
+        <span class="text-slate-600 py-1">จ.</span>
+        <span class="text-slate-600 py-1">อ.</span>
+        <span class="text-slate-600 py-1">พ.</span>
+        <span class="text-slate-600 py-1">พฤ.</span>
+        <span class="text-slate-600 py-1">ศ.</span>
+        <span class="text-slate-600 py-1">ส.</span>
+      </div>
+
+      <!-- Calendar Days Grid -->
+      <div id="calendarGrid" class="grid grid-cols-7 gap-1 text-center text-sm">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+        <button onclick="setCalToToday()" class="text-xs text-brand-600 font-semibold hover:underline">
+          วันนี้
+        </button>
+        <button onclick="closeThaiCalendar()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium">
+          ปิด
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Google Sheets & Apps Script Configuration -->
+  <div id="configModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden fade-in max-h-[90vh] flex flex-col">
+      <div class="p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fa-brands fa-google-drive text-emerald-600 text-xl"></i>
+          <h3 class="font-bold text-slate-800 text-base">การเชื่อมต่อ Google Sheets & โครงสร้างข้อมูล</h3>
+        </div>
+        <button onclick="closeConfigModal()" class="w-8 h-8 rounded-lg hover:bg-slate-200 text-slate-400 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-600 flex-1">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <p class="font-semibold text-slate-800 mb-1">ลิ้งก์ Google Sheet ฐานข้อมูล:</p>
+          <a href="https://docs.google.com/spreadsheets/d/1R6csij5mYaJApsgFPR1WvVAIYbDnFti00AkV4_7WMNI/edit?usp=sharing" target="_blank" class="text-brand-600 break-all underline">
+            https://docs.google.com/spreadsheets/d/1R6csij5mYaJApsgFPR1WvVAIYbDnFti00AkV4_7WMNI/edit
+          </a>
+          <p class="text-xs text-slate-400 mt-1">ชื่อแท็บ: <strong>ชีต1</strong></p>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Google Apps Script Web App URL (สำหรับรับข้อมูล POST ลง Google Sheets):</label>
+          <input type="text" id="appsScriptUrlInput" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-brand-500">
+          <p class="text-[11px] text-slate-400 mt-1">หากยังไม่ได้ Deploy Apps Script ระบบจะบันทึกและจำลองข้อมูลใน Session ให้ใช้งานได้ทันที</p>
+        </div>
+
+        <div class="pt-2">
+          <p class="font-bold text-slate-800 mb-2">โครงสร้างคอลัมน์ใน Google Sheets (กำหนดไว้ให้ 16 คอลัมน์):</p>
+          <div class="bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] overflow-x-auto space-y-1">
+            <p><span class="text-emerald-400">Col A:</span> Timestamp (วันเวลาบันทึก)</p>
+            <p><span class="text-emerald-400">Col B:</span> หน่วยบริการ (HospitalName)</p>
+            <p><span class="text-emerald-400">Col C:</span> วันที่รับบริการ (ServiceDate)</p>
+            <p><span class="text-emerald-400">Col D:</span> สีเขียว (ColorGreen)</p>
+            <p><span class="text-emerald-400">Col E:</span> สีเหลือง (ColorYellow)</p>
+            <p><span class="text-emerald-400">Col F:</span> สีส้ม (ColorOrange)</p>
+            <p><span class="text-emerald-400">Col G:</span> สีแดง (ColorRed)</p>
+            <p><span class="text-emerald-400">Col H:</span> สีดำ_กลุ่มซับซ้อน (ColorBlack)</p>
+            <p><span class="text-emerald-400">Col I:</span> พบแพทย์_รพสต (DoctorHosp)</p>
+            <p><span class="text-emerald-400">Col J:</span> พบแพทย์_telemedicine (DoctorTelemed)</p>
+            <p><span class="text-emerald-400">Col K:</span> พบเภสัชกร_telepharmacy (Telepharmacy)</p>
+            <p><span class="text-emerald-400">Col L:</span> ส่งต่อ_รพ_กุสุมาลย์ (ReferHospital)</p>
+            <p><span class="text-emerald-400">Col M:</span> ส่งกลับรับยา_รพ_กุสุมาลย์ (ReturnHospital)</p>
+            <p><span class="text-emerald-400">Col N:</span> นัดตรวจ_Lab (LabAppointment)</p>
+            <p><span class="text-emerald-400">Col O:</span> นัดตรวจ_EKG (EkgAppointment)</p>
+            <p><span class="text-emerald-400">Col P:</span> ผู้ป่วยขาดนัด (MissedAppointment)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+        <button onclick="saveAppsScriptUrl()" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs transition-colors">
+          บันทึกการตั้งค่า
+        </button>
+        <button onclick="closeConfigModal()" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs transition-colors">
+          ปิด
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // Global Constants & State
+    // -------------------------------------------------------------
+    const SPREADSHEET_ID = '1R6csij5mYaJApsgFPR1WvVAIYbDnFti00AkV4_7WMNI';
+    const SHEET_NAME = 'ชีต1';
+    // Google Apps Script Web App URL สำหรับบันทึกและอ่านข้อมูลจาก Google Sheets
+    const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz3jtUFRJlEFhLiytftlhLYCRcwy6TYHNBDtnWiziHkK3M9bNlvThEL3AAGTVzMY88Pdg/exec';
+    
+    // Thai Month Names
+    const THAI_MONTHS = [
+      'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+      'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+
+    const HOSPITALS = [
+      'รพ.สต.บ้านบอน',
+      'รพ.สต.บ้านนาเพียงใหม่',
+      'รพ.สต.บ้านโพธิไพศาล',
+      'รพ.สต.บ้านห้วยกอก',
+      'รพ.สต.บ้านแสนพัน',
+      'รพ.สต.บ้านหนองบัวสร้าง'
+    ];
+
+    // Seed/Cached In-Memory Data for Kusuman NCD Clinics
+    let clinicRecords = [
+      {
+        timestamp: '1/10/2569 09:30:00',
+        hospital: 'รพ.สต.บ้านบอน',
+        dateStr: '1 ตุลาคม 2569',
+        dateRaw: '2026-10-01',
+        green: 14, yellow: 8, orange: 3, red: 1, black: 2,
+        doctor: 18, telemed: 10, telepharm: 28,
+        refer: 2, returnMed: 4, lab: 5, ekg: 3, missed: 1
+      },
+      {
+        timestamp: '1/10/2569 10:15:00',
+        hospital: 'รพ.สต.บ้านนาเพียงใหม่',
+        dateStr: '1 ตุลาคม 2569',
+        dateRaw: '2026-10-01',
+        green: 11, yellow: 6, orange: 2, red: 0, black: 1,
+        doctor: 12, telemed: 8, telepharm: 20,
+        refer: 1, returnMed: 3, lab: 4, ekg: 2, missed: 0
+      },
+      {
+        timestamp: '2/10/2569 09:40:00',
+        hospital: 'รพ.สต.บ้านโพธิไพศาล',
+        dateStr: '2 ตุลาคม 2569',
+        dateRaw: '2026-10-02',
+        green: 16, yellow: 9, orange: 4, red: 1, black: 3,
+        doctor: 20, telemed: 13, telepharm: 33,
+        refer: 3, returnMed: 5, lab: 7, ekg: 4, missed: 2
+      },
+      {
+        timestamp: '2/10/2569 11:00:00',
+        hospital: 'รพ.สต.บ้านห้วยกอก',
+        dateStr: '2 ตุลาคม 2569',
+        dateRaw: '2026-10-02',
+        green: 9, yellow: 5, orange: 2, red: 0, black: 1,
+        doctor: 10, telemed: 7, telepharm: 17,
+        refer: 1, returnMed: 2, lab: 3, ekg: 1, missed: 1
+      },
+      {
+        timestamp: '3/10/2569 09:15:00',
+        hospital: 'รพ.สต.บ้านแสนพัน',
+        dateStr: '3 ตุลาคม 2569',
+        dateRaw: '2026-10-03',
+        green: 13, yellow: 7, orange: 3, red: 1, black: 2,
+        doctor: 15, telemed: 11, telepharm: 26,
+        refer: 2, returnMed: 4, lab: 6, ekg: 3, missed: 0
+      },
+      {
+        timestamp: '3/10/2569 10:45:00',
+        hospital: 'รพ.สต.บ้านหนองบัวสร้าง',
+        dateStr: '3 ตุลาคม 2569',
+        dateRaw: '2026-10-03',
+        green: 10, yellow: 4, orange: 1, red: 0, black: 1,
+        doctor: 11, telemed: 5, telepharm: 16,
+        refer: 1, returnMed: 2, lab: 3, ekg: 2, missed: 1
+      }
+    ];
+
+    // Current date state for Calendar
+    let selectedDate = new Date(2026, 9, 1); // 1 ตุลาคม 2569
+    let calendarCursor = new Date(2026, 9, 1);
+    let activeModalHospital = null;
+    let activeModalDateFilter = null;
+
+    // -------------------------------------------------------------
+    // Thai Date Utilities
+    // -------------------------------------------------------------
+    function formatThaiDateFull(dateObj) {
+      const day = dateObj.getDate();
+      const month = THAI_MONTHS[dateObj.getMonth()];
+      const yearBE = dateObj.getFullYear() + 543;
+      return `${day} ${month} ${yearBE}`;
+    }
+
+    function updateLiveDateTime() {
+      const now = new Date();
+      const day = now.getDate();
+      const month = THAI_MONTHS[now.getMonth()];
+      const yearBE = now.getFullYear() + 543;
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      const formatted = `${day} ${month} ${yearBE} เวลา ${hours}.${mins} น.`;
+
+      const el = document.getElementById('currentDateTimeDisplay');
+      if (el) {
+        el.innerHTML = `<i class="fa-regular fa-clock text-brand-600 mr-2"></i><span>${formatted}</span>`;
+      }
+    }
+
+    function initDefaultDate() {
+      const now = new Date();
+      selectedDate = now;
+      calendarCursor = new Date(now.getFullYear(), now.getMonth(), 1);
+      
+      const thaiFormatted = formatThaiDateFull(selectedDate);
+      document.getElementById('displayThaiDate').textContent = thaiFormatted;
+      document.getElementById('serviceDate').value = thaiFormatted;
+    }
+
+    function openThaiCalendar() {
+      renderCalendar();
+      document.getElementById('calendarModal').classList.remove('hidden');
+    }
+
+    function closeThaiCalendar() {
+      document.getElementById('calendarModal').classList.add('hidden');
+    }
+
+    function changeCalMonth(delta) {
+      calendarCursor.setMonth(calendarCursor.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function setCalToToday() {
+      selectedDate = new Date();
+      calendarCursor = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+      applySelectedDate();
+      closeThaiCalendar();
+    }
+
+    function applySelectedDate() {
+      const thaiFormatted = formatThaiDateFull(selectedDate);
+      document.getElementById('displayThaiDate').textContent = thaiFormatted;
+      document.getElementById('serviceDate').value = thaiFormatted;
+    }
+
+    function selectDateFromCalendar(year, month, day) {
+      selectedDate = new Date(year, month, day);
+      applySelectedDate();
+      closeThaiCalendar();
+    }
+
+    function renderCalendar() {
+      const year = calendarCursor.getFullYear();
+      const month = calendarCursor.getMonth();
+      const yearBE = year + 543;
+
+      document.getElementById('calMonthYearText').textContent = `${THAI_MONTHS[month]} ${yearBE}`;
+
+      const firstDayIndex = new Date(year, month, 1).getDay(); // 0 is Sunday
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const prevMonthDays = new Date(year, month, 0).getDate();
+
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      // Previous month trailing days
+      for (let i = firstDayIndex - 1; i >= 0; i--) {
+        const d = prevMonthDays - i;
+        const span = document.createElement('span');
+        span.className = 'py-2 text-slate-300 text-xs';
+        span.textContent = d;
+        grid.appendChild(span);
+      }
+
+      // Current month active days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = day;
+        
+        const isSelected = selectedDate.getDate() === day &&
+                           selectedDate.getMonth() === month &&
+                           selectedDate.getFullYear() === year;
+
+        const dayOfWeek = new Date(year, month, day).getDay();
+        const isSunday = dayOfWeek === 0;
+
+        let cls = 'py-2 rounded-xl text-xs font-medium transition-colors ';
+        if (isSelected) {
+          cls += 'bg-brand-600 text-white font-bold shadow-sm';
+        } else if (isSunday) {
+          cls += 'text-rose-600 hover:bg-rose-50';
+        } else {
+          cls += 'text-slate-700 hover:bg-slate-100';
+        }
+
+        btn.className = cls;
+        btn.onclick = () => selectDateFromCalendar(year, month, day);
+        grid.appendChild(btn);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Telepharmacy Auto Calculation
+    // -------------------------------------------------------------
+    function calculateTelepharmacy() {
+      const doc = parseInt(document.getElementById('serviceDoctor').value) || 0;
+      const tele = parseInt(document.getElementById('serviceTelemed').value) || 0;
+      const totalPharm = doc + tele;
+      document.getElementById('serviceTelepharm').value = totalPharm;
+    }
+
+    // -------------------------------------------------------------
+    // Navigation / View Switching
+    // -------------------------------------------------------------
+    function navigateTo(viewName) {
+      document.getElementById('viewHome').classList.add('hidden');
+      document.getElementById('viewForm').classList.add('hidden');
+      document.getElementById('viewSummary').classList.add('hidden');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (viewName === 'home') {
+        document.getElementById('viewHome').classList.remove('hidden');
+      } else if (viewName === 'form') {
+        document.getElementById('viewForm').classList.remove('hidden');
+      } else if (viewName === 'summary') {
+        document.getElementById('viewSummary').classList.remove('hidden');
+        renderDashboard();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Form Submission & Google Sheets Storing
+    // -------------------------------------------------------------
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const origContent = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>กำลังบันทึก...</span>`;
+
+      // Read form data
+      const hospital = document.getElementById('hospitalSelect').value;
+      const dateStr = document.getElementById('serviceDate').value;
+      
+      const green = parseInt(document.getElementById('colorGreen').value) || 0;
+      const yellow = parseInt(document.getElementById('colorYellow').value) || 0;
+      const orange = parseInt(document.getElementById('colorOrange').value) || 0;
+      const red = parseInt(document.getElementById('colorRed').value) || 0;
+      const black = parseInt(document.getElementById('colorBlack').value) || 0;
+
+      const doctor = parseInt(document.getElementById('serviceDoctor').value) || 0;
+      const telemed = parseInt(document.getElementById('serviceTelemed').value) || 0;
+      const telepharm = doctor + telemed; // Formula verified
+
+      const refer = parseInt(document.getElementById('otherRefer').value) || 0;
+      const returnMed = parseInt(document.getElementById('otherReturn').value) || 0;
+      const lab = parseInt(document.getElementById('otherLab').value) || 0;
+      const ekg = parseInt(document.getElementById('otherEkg').value) || 0;
+      const missed = parseInt(document.getElementById('otherMissed').value) || 0;
+
+      const newRecord = {
+        timestamp: new Date().toLocaleString('th-TH'),
+        hospital,
+        dateStr,
+        dateRaw: new Date().toISOString().split('T')[0],
+        green, yellow, orange, red, black,
+        doctor, telemed, telepharm,
+        refer, returnMed, lab, ekg, missed
+      };
+
+      // Add to local session dataset immediately
+      clinicRecords.unshift(newRecord);
+
+      // ส่งข้อมูลไปยัง Google Apps Script Web App
+      const targetScriptUrl = (typeof APPS_SCRIPT_WEB_APP_URL !== 'undefined' && APPS_SCRIPT_WEB_APP_URL) 
+        ? APPS_SCRIPT_WEB_APP_URL 
+        : localStorage.getItem('kusuman_apps_script_url');
+
+      if (targetScriptUrl && targetScriptUrl.startsWith('http')) {
+        try {
+          await fetch(targetScriptUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(newRecord)
+          });
+        } catch (e) {
+          console.warn('Apps Script dispatch failed or offline:', e);
+        }
+      }
+
+      // Reset button
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = origContent;
+
+      // Reset form
+      document.getElementById('recordForm').reset();
+      initDefaultDate();
+      calculateTelepharmacy();
+
+      // Show Popup Modal
+      document.getElementById('successModal').classList.remove('hidden');
+    }
+
+    function closeSuccessModalAndGoHome() {
+      document.getElementById('successModal').classList.add('hidden');
+      navigateTo('home');
+    }
+
+    // -------------------------------------------------------------
+    // Dashboard Summary Calculations (ภาพรวม คปสอ.)
+    // -------------------------------------------------------------
+    function renderDashboard() {
+      // 1. Calculate Overall Summary (ส่วนที่ 1)
+      let sumGreen = 0, sumYellow = 0, sumOrange = 0, sumRed = 0, sumBlack = 0;
+      let sumDoc = 0, sumTele = 0, sumPharm = 0;
+      let sumRef = 0, sumRet = 0, sumL = 0, sumE = 0, sumM = 0;
+
+      // Hospital totals map for quick preview cards
+      const hospCounts = {};
+      HOSPITALS.forEach(h => hospCounts[h] = 0);
+
+      clinicRecords.forEach(r => {
+        sumGreen += r.green;
+        sumYellow += r.yellow;
+        sumOrange += r.orange;
+        sumRed += r.red;
+        sumBlack += r.black;
+
+        sumDoc += r.doctor;
+        sumTele += r.telemed;
+        sumPharm += r.telepharm;
+
+        sumRef += r.refer;
+        sumRet += r.returnMed;
+        sumL += r.lab;
+        sumE += r.ekg;
+        sumM += r.missed;
+
+        const recordTotal = (r.green + r.yellow + r.orange + r.red + r.black);
+        if (hospCounts[r.hospital] !== undefined) {
+          hospCounts[r.hospital] += recordTotal;
+        }
+      });
+
+      const sumGeneral = sumGreen + sumYellow + sumOrange + sumRed;
+      const sumComplex = sumBlack;
+      const sumAll = sumGeneral + sumComplex;
+
+      // Update Section 1 UI elements
+      document.getElementById('sumTotalPatients').textContent = sumAll.toLocaleString();
+      document.getElementById('sumGeneralPatients').textContent = sumGeneral.toLocaleString();
+      document.getElementById('sumComplexPatients').textContent = sumComplex.toLocaleString();
+
+      document.getElementById('sumColorGreen').textContent = `${sumGreen.toLocaleString()} ราย`;
+      document.getElementById('sumColorYellow').textContent = `${sumYellow.toLocaleString()} ราย`;
+      document.getElementById('sumColorOrange').textContent = `${sumOrange.toLocaleString()} ราย`;
+      document.getElementById('sumColorRed').textContent = `${sumRed.toLocaleString()} ราย`;
+      document.getElementById('sumColorBlack').textContent = `${sumBlack.toLocaleString()} ราย`;
+
+      document.getElementById('sumDoctor').innerHTML = `${sumDoc.toLocaleString()} <span class="text-xs font-normal text-slate-500">ราย</span>`;
+      document.getElementById('sumTelemed').innerHTML = `${sumTele.toLocaleString()} <span class="text-xs font-normal text-slate-500">ราย</span>`;
+      document.getElementById('sumTelepharm').innerHTML = `${sumPharm.toLocaleString()} <span class="text-xs font-normal text-slate-500">ราย</span>`;
+
+      document.getElementById('sumRefer').textContent = `${sumRef.toLocaleString()} ราย`;
+      document.getElementById('sumReturn').textContent = `${sumRet.toLocaleString()} ราย`;
+      document.getElementById('sumLab').textContent = `${sumL.toLocaleString()} ราย`;
+      document.getElementById('sumEkg').textContent = `${sumE.toLocaleString()} ราย`;
+      document.getElementById('sumMissed').textContent = `${sumM.toLocaleString()} ราย`;
+
+      // Update Hospital preview button counts (ส่วนที่ 2)
+      HOSPITALS.forEach(hName => {
+        const el = document.getElementById(`cardCount-${hName}`);
+        if (el) {
+          el.textContent = `${hospCounts[hName].toLocaleString()} ราย`;
+        }
+      });
+    }
+
+    // -------------------------------------------------------------
+    // Hospital Specific Popup (ส่วนที่ 2 - แยกราย รพ.สต.)
+    // -------------------------------------------------------------
+    function openHospitalSummaryModal(hospitalName) {
+      activeModalHospital = hospitalName;
+      activeModalDateFilter = null; // null means all dates
+      
+      document.getElementById('modalHospitalTitle').textContent = hospitalName;
+      renderHospitalModalContent();
+      document.getElementById('hospitalModal').classList.remove('hidden');
+    }
+
+    function closeHospitalModal() {
+      document.getElementById('hospitalModal').classList.add('hidden');
+    }
+
+    function resetHospitalDateFilter() {
+      activeModalDateFilter = null;
+      renderHospitalModalContent();
+    }
+
+    function setHospitalDateFilter(dateStr) {
+      activeModalDateFilter = dateStr;
+      renderHospitalModalContent();
+    }
+
+    function renderHospitalModalContent() {
+      if (!activeModalHospital) return;
+
+      const hospRecords = clinicRecords.filter(r => r.hospital === activeModalHospital);
+
+      // Collect unique dates registered for this hospital
+      const uniqueDates = [...new Set(hospRecords.map(r => r.dateStr))];
+
+      // Update date pills container
+      const pillsContainer = document.getElementById('modalDatePills');
+      const resetBtn = document.getElementById('btnResetDateFilter');
+      pillsContainer.innerHTML = '';
+
+      if (uniqueDates.length === 0) {
+        pillsContainer.innerHTML = `<span class="text-xs text-slate-400">ยังไม่มีประวัติการบันทึกข้อมูลของ ${activeModalHospital}</span>`;
+        resetBtn.classList.add('hidden');
+      } else {
+        if (activeModalDateFilter) {
+          resetBtn.classList.remove('hidden');
+        } else {
+          resetBtn.classList.add('hidden');
+        }
+
+        uniqueDates.forEach(dStr => {
+          const pill = document.createElement('button');
+          pill.type = 'button';
+          const isCurrentActive = (activeModalDateFilter === dStr);
+          
+          pill.className = `px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            isCurrentActive 
+              ? 'bg-brand-600 text-white shadow-sm ring-2 ring-brand-300' 
+              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+          }`;
+          pill.innerHTML = `<i class="fa-regular fa-calendar-check mr-1.5 ${isCurrentActive ? 'text-white' : 'text-brand-600'}"></i>${dStr}`;
+          pill.onclick = () => setHospitalDateFilter(dStr);
+          pillsContainer.appendChild(pill);
+        });
+      }
+
+      // Filter dataset according to active date filter
+      const targetRecords = activeModalDateFilter 
+        ? hospRecords.filter(r => r.dateStr === activeModalDateFilter)
+        : hospRecords;
+
+      // Update Subtitle & Scope
+      if (activeModalDateFilter) {
+        document.getElementById('modalHospitalSubtitle').textContent = `สรุปข้อมูลเฉพาะวันที่: ${activeModalDateFilter}`;
+        document.getElementById('modalMetricScope').textContent = `จำนวนผู้ป่วยรับบริการวันนี้ (${activeModalDateFilter})`;
+      } else {
+        document.getElementById('modalHospitalSubtitle').textContent = `สรุปข้อมูลการให้บริการผู้ป่วยโรคเรื้อรัง`;
+        document.getElementById('modalMetricScope').textContent = `จำนวนผู้ป่วยรับบริการทั้งหมด`;
+      }
+
+      // Compute statistics
+      let green = 0, yellow = 0, orange = 0, red = 0, black = 0;
+      let doctor = 0, telemed = 0, telepharm = 0;
+      let refer = 0, returnMed = 0, lab = 0, ekg = 0, missed = 0;
+
+      targetRecords.forEach(r => {
+        green += r.green;
+        yellow += r.yellow;
+        orange += r.orange;
+        red += r.red;
+        black += r.black;
+        doctor += r.doctor;
+        telemed += r.telemed;
+        telepharm += r.telepharm;
+        refer += r.refer;
+        returnMed += r.returnMed;
+        lab += r.lab;
+        ekg += r.ekg;
+        missed += r.missed;
+      });
+
+      const general = green + yellow + orange + red;
+      const complex = black;
+      const total = general + complex;
+
+      // Populate elements
+      document.getElementById('modalTotalPatients').textContent = total.toLocaleString();
+      document.getElementById('modalGeneralPatients').textContent = `${general.toLocaleString()} ราย`;
+      document.getElementById('modalComplexPatients').textContent = `${complex.toLocaleString()} ราย`;
+
+      document.getElementById('modalColorGreen').textContent = `${green.toLocaleString()} ราย`;
+      document.getElementById('modalColorYellow').textContent = `${yellow.toLocaleString()} ราย`;
+      document.getElementById('modalColorOrange').textContent = `${orange.toLocaleString()} ราย`;
+      document.getElementById('modalColorRed').textContent = `${red.toLocaleString()} ราย`;
+      document.getElementById('modalColorBlack').textContent = `${black.toLocaleString()} ราย`;
+
+      document.getElementById('modalDoctor').textContent = `${doctor.toLocaleString()} ราย`;
+      document.getElementById('modalTelemed').textContent = `${telemed.toLocaleString()} ราย`;
+      document.getElementById('modalTelepharm').textContent = `${telepharm.toLocaleString()} ราย`;
+
+      document.getElementById('modalRefer').textContent = `${refer.toLocaleString()} ราย`;
+      document.getElementById('modalReturn').textContent = `${returnMed.toLocaleString()} ราย`;
+      document.getElementById('modalLab').textContent = `${lab.toLocaleString()} ราย`;
+      document.getElementById('modalEkg').textContent = `${ekg.toLocaleString()} ราย`;
+      document.getElementById('modalMissed').textContent = `${missed.toLocaleString()} ราย`;
+    }
+
+    // -------------------------------------------------------------
+    // Live Google Sheet Data Fetching via Google Visualization API
+    // -------------------------------------------------------------
+    async function fetchSheetData() {
+      // 1. ลองดึงข้อมูลผ่าน Apps Script Web App API ก่อน
+      const targetScriptUrl = (typeof APPS_SCRIPT_WEB_APP_URL !== 'undefined' && APPS_SCRIPT_WEB_APP_URL)
+        ? APPS_SCRIPT_WEB_APP_URL
+        : localStorage.getItem('kusuman_apps_script_url');
+
+      if (targetScriptUrl && targetScriptUrl.startsWith('http')) {
+        try {
+          const res = await fetch(`${targetScriptUrl}?action=read`);
+          const json = await res.json();
+          if (json.status === 'success' && Array.isArray(json.records) && json.records.length > 0) {
+            clinicRecords = json.records;
+            renderDashboard();
+            return;
+          }
+        } catch (err) {
+          console.log('Apps Script fetch failed, falling back to gviz:', err);
+        }
+      }
+
+      const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+      
+      try {
+        const response = await fetch(gvizUrl);
+        const text = await response.text();
+        
+        // Strip the google.visualization.Query.setResponse wrapper
+        const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+        const data = JSON.parse(jsonString);
+
+        if (data.table && data.table.rows && data.table.rows.length > 0) {
+          const fetchedRecords = [];
+          
+          data.table.rows.forEach(row => {
+            const c = row.c;
+            if (!c || !c[1] || !c[1].v) return; // Must have hospital name
+
+            // Map columns: A:timestamp, B:hospital, C:date, D:green, E:yellow, F:orange, G:red, H:black, I:doc, J:telemed, K:telepharm, L:refer, M:return, N:lab, O:ekg, P:missed
+            const record = {
+              timestamp: c[0] ? String(c[0].v || '') : '',
+              hospital: c[1] ? String(c[1].v || '').trim() : '',
+              dateStr: c[2] ? String(c[2].v || '').trim() : '',
+              dateRaw: '',
+              green: c[3] ? Number(c[3].v) || 0 : 0,
+              yellow: c[4] ? Number(c[4].v) || 0 : 0,
+              orange: c[5] ? Number(c[5].v) || 0 : 0,
+              red: c[6] ? Number(c[6].v) || 0 : 0,
+              black: c[7] ? Number(c[7].v) || 0 : 0,
+              doctor: c[8] ? Number(c[8].v) || 0 : 0,
+              telemed: c[9] ? Number(c[9].v) || 0 : 0,
+              telepharm: c[10] ? Number(c[10].v) || 0 : ( (c[8]?Number(c[8].v)||0:0) + (c[9]?Number(c[9].v)||0:0) ),
+              refer: c[11] ? Number(c[11].v) || 0 : 0,
+              returnMed: c[12] ? Number(c[12].v) || 0 : 0,
+              lab: c[13] ? Number(c[13].v) || 0 : 0,
+              ekg: c[14] ? Number(c[14].v) || 0 : 0,
+              missed: c[15] ? Number(c[15].v) || 0 : 0,
+            };
+            
+            if (record.hospital) {
+              fetchedRecords.push(record);
+            }
+          });
+
+          if (fetchedRecords.length > 0) {
+            clinicRecords = fetchedRecords;
+            renderDashboard();
+          }
+        }
+      } catch (err) {
+        console.log('Using in-memory cache / Sheet permissions check:', err);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Configuration Modal
+    // -------------------------------------------------------------
+    function openConfigModal() {
+      const savedUrl = localStorage.getItem('kusuman_apps_script_url') || '';
+      document.getElementById('appsScriptUrlInput').value = savedUrl;
+      document.getElementById('configModal').classList.remove('hidden');
+    }
+
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.add('hidden');
+    }
+
+    function saveAppsScriptUrl() {
+      const url = document.getElementById('appsScriptUrlInput').value.trim();
+      localStorage.setItem('kusuman_apps_script_url', url);
+      closeConfigModal();
+    }
+
+    // -------------------------------------------------------------
+    // Initialize Application
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', async () => {
+      initDefaultDate();
+      calculateTelepharmacy();
+      updateLiveDateTime();
+      setInterval(updateLiveDateTime, 1000);
+      
+      // Attempt live fetch from Google Sheet
+      await fetchSheetData();
+      renderDashboard();
+
+      // Dismiss Loading Screen with smooth fade out
+      setTimeout(() => {
+        const loader = document.getElementById('loadingScreen');
+        if (loader) {
+          loader.classList.add('opacity-0', 'pointer-events-none');
+          setTimeout(() => loader.remove(), 500);
+        }
+      }, 700);
+    });
+  </script>
+</body>
+</html>
