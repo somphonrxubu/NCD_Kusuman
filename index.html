@@ -91,7 +91,7 @@
       </div>
     </div>
     <h2 class="text-xl font-semibold text-slate-700 tracking-wide mb-1">กรุณารอสักครู่</h2>
-    <p class="text-sm text-slate-400 font-light">กำลังเชื่อมโยงฐานข้อมูล คปสอ.กุสุมาลย์...</p>
+    <p class="text-sm text-slate-400 font-light">กำลังเชื่อมโยงฐานข้อมูลการให้บริการผู้ป่วย</p>
   </div>
 
   <!-- Top Navigation Header -->
@@ -273,7 +273,7 @@
                       <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
                       <span class="text-xs font-semibold text-emerald-800">สีเขียว</span>
                     </div>
-                    <input type="number" min="0" value="0" id="colorGreen" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-emerald-50/40 rounded-lg py-2 border border-emerald-200 focus:ring-2 focus:ring-emerald-500">
+                    <input type="number" min="0" value="0" id="colorGreen" oninput="calculateTotalPatients()" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-emerald-50/40 rounded-lg py-2 border border-emerald-200 focus:ring-2 focus:ring-emerald-500">
                   </div>
                   <!-- Yellow -->
                   <div class="bg-white p-3 rounded-xl border border-amber-200 shadow-2xs">
@@ -281,7 +281,7 @@
                       <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
                       <span class="text-xs font-semibold text-amber-800">สีเหลือง</span>
                     </div>
-                    <input type="number" min="0" value="0" id="colorYellow" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-amber-50/40 rounded-lg py-2 border border-amber-200 focus:ring-2 focus:ring-amber-500">
+                    <input type="number" min="0" value="0" id="colorYellow" oninput="calculateTotalPatients()" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-amber-50/40 rounded-lg py-2 border border-amber-200 focus:ring-2 focus:ring-amber-500">
                   </div>
                   <!-- Orange -->
                   <div class="bg-white p-3 rounded-xl border border-orange-200 shadow-2xs">
@@ -289,7 +289,7 @@
                       <span class="w-3 h-3 rounded-full bg-orange-500 inline-block"></span>
                       <span class="text-xs font-semibold text-orange-800">สีส้ม</span>
                     </div>
-                    <input type="number" min="0" value="0" id="colorOrange" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-orange-50/40 rounded-lg py-2 border border-orange-200 focus:ring-2 focus:ring-orange-500">
+                    <input type="number" min="0" value="0" id="colorOrange" oninput="calculateTotalPatients()" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-orange-50/40 rounded-lg py-2 border border-orange-200 focus:ring-2 focus:ring-orange-500">
                   </div>
                   <!-- Red -->
                   <div class="bg-white p-3 rounded-xl border border-rose-200 shadow-2xs">
@@ -297,7 +297,7 @@
                       <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
                       <span class="text-xs font-semibold text-rose-800">สีแดง</span>
                     </div>
-                    <input type="number" min="0" value="0" id="colorRed" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-rose-50/40 rounded-lg py-2 border border-rose-200 focus:ring-2 focus:ring-rose-500">
+                    <input type="number" min="0" value="0" id="colorRed" oninput="calculateTotalPatients()" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-rose-50/40 rounded-lg py-2 border border-rose-200 focus:ring-2 focus:ring-rose-500">
                   </div>
                 </div>
               </div>
@@ -310,7 +310,21 @@
                     <span class="w-3 h-3 rounded-full bg-slate-900 inline-block"></span>
                     <span class="text-xs font-semibold text-slate-900">สีดำ</span>
                   </div>
-                  <input type="number" min="0" value="0" id="colorBlack" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-slate-100 rounded-lg py-2 border border-slate-300 focus:ring-2 focus:ring-slate-800">
+                  <input type="number" min="0" value="0" id="colorBlack" oninput="calculateTotalPatients()" required class="w-full text-center text-xl sm:text-2xl font-black text-slate-800 bg-slate-100 rounded-lg py-2 border border-slate-300 focus:ring-2 focus:ring-slate-800">
+                </div>
+              </div>
+
+              <!-- Total Service Recipients (รวมผู้รับบริการทั้งหมด - เด่นกว่าการ์ดอื่น) -->
+              <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 p-4 sm:p-5 rounded-2xl text-white shadow-lg shadow-teal-700/20 border border-teal-400/30 flex flex-col sm:flex-row items-center justify-between gap-3 transform transition-all">
+                <div class="w-full sm:w-auto">
+                  <h4 class="text-base sm:text-lg font-bold text-white leading-tight">
+                    รวมผู้รับบริการทั้งหมด
+                  </h4>
+                  <p class="text-xs text-teal-100 font-light mt-0.5">ระบบคำนวณให้อัตโนมัติ</p>
+                </div>
+                <div class="flex items-baseline space-x-2 bg-slate-900/30 backdrop-blur-md px-5 py-2.5 rounded-xl border border-white/20 shadow-inner w-full sm:w-auto justify-center sm:justify-end">
+                  <span id="displayTotalPatients" class="text-3xl sm:text-4xl font-black tracking-tight text-white">0</span>
+                  <span class="text-sm font-semibold text-teal-100">ราย</span>
                 </div>
               </div>
             </div>
@@ -876,7 +890,7 @@
         <i class="fa-solid fa-circle-check"></i>
       </div>
       <h3 class="text-xl font-bold text-slate-900 mb-1">บันทึกข้อมูลเรียบร้อยแล้ว</h3>
-      <p class="text-xs text-slate-500 mb-6">ข้อมูลการให้บริการผู้ป่วยโรคเรื้อรังถูกบันทึกลงระบบ Google Sheet เรียบร้อยแล้ว</p>
+      <p class="text-xs text-slate-500 mb-6">ข้อมูลการให้บริการผู้ป่วยโรคเรื้อรังถูกบันทึกเรียบร้อยแล้ว</p>
       
       <button onclick="closeSuccessModalAndGoHome()" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-600/30 transition-all">
         ปิด และย้อนกลับไปที่หน้าหลัก
@@ -991,220 +1005,252 @@
   </div>
 
   <script>
-    // -------------------------------------------------------------
-    // Global Constants & State
-    // -------------------------------------------------------------
-    const SPREADSHEET_ID = '1R6csij5mYaJApsgFPR1WvVAIYbDnFti00AkV4_7WMNI';
-    const SHEET_NAME = 'ชีต1';
-    // Google Apps Script Web App URL สำหรับบันทึกและอ่านข้อมูลจาก Google Sheets
-    const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz3jtUFRJlEFhLiytftlhLYCRcwy6TYHNBDtnWiziHkK3M9bNlvThEL3AAGTVzMY88Pdg/exec';
-    
-    // Thai Month Names
-    const THAI_MONTHS = [
-      'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-      'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-    ];
+    const APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz3jtUFRJlEFhLiytftlhLYCRcwy6TYHNBDtnWiziHkK3M9bNlvThEL3AAGTVzMY88Pdg/exec";
+    const SPREADSHEET_ID = "1R6csij5mYaJApsgFPR1WvVAIYbDnFti00AkV4_7WMNI";
+    const SHEET_NAME = "ชีต1";
 
     const HOSPITALS = [
-      'รพ.สต.บ้านบอน',
-      'รพ.สต.บ้านนาเพียงใหม่',
-      'รพ.สต.บ้านโพธิไพศาล',
-      'รพ.สต.บ้านห้วยกอก',
-      'รพ.สต.บ้านแสนพัน',
-      'รพ.สต.บ้านหนองบัวสร้าง'
+      "รพ.สต.บ้านบอน",
+      "รพ.สต.บ้านนาเพียงใหม่",
+      "รพ.สต.บ้านโพธิไพศาล",
+      "รพ.สต.บ้านห้วยกอก",
+      "รพ.สต.บ้านแสนพัน",
+      "รพ.สต.บ้านหนองบัวสร้าง"
     ];
 
-    // Seed/Cached In-Memory Data for Kusuman NCD Clinics
+    const THAI_MONTHS = [
+      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    ];
+
     let clinicRecords = [
-      {
-        timestamp: '1/10/2569 09:30:00',
-        hospital: 'รพ.สต.บ้านบอน',
-        dateStr: '1 ตุลาคม 2569',
-        dateRaw: '2026-10-01',
-        green: 14, yellow: 8, orange: 3, red: 1, black: 2,
-        doctor: 18, telemed: 10, telepharm: 28,
-        refer: 2, returnMed: 4, lab: 5, ekg: 3, missed: 1
-      },
-      {
-        timestamp: '1/10/2569 10:15:00',
-        hospital: 'รพ.สต.บ้านนาเพียงใหม่',
-        dateStr: '1 ตุลาคม 2569',
-        dateRaw: '2026-10-01',
-        green: 11, yellow: 6, orange: 2, red: 0, black: 1,
-        doctor: 12, telemed: 8, telepharm: 20,
-        refer: 1, returnMed: 3, lab: 4, ekg: 2, missed: 0
-      },
-      {
-        timestamp: '2/10/2569 09:40:00',
-        hospital: 'รพ.สต.บ้านโพธิไพศาล',
-        dateStr: '2 ตุลาคม 2569',
-        dateRaw: '2026-10-02',
-        green: 16, yellow: 9, orange: 4, red: 1, black: 3,
-        doctor: 20, telemed: 13, telepharm: 33,
-        refer: 3, returnMed: 5, lab: 7, ekg: 4, missed: 2
-      },
-      {
-        timestamp: '2/10/2569 11:00:00',
-        hospital: 'รพ.สต.บ้านห้วยกอก',
-        dateStr: '2 ตุลาคม 2569',
-        dateRaw: '2026-10-02',
-        green: 9, yellow: 5, orange: 2, red: 0, black: 1,
-        doctor: 10, telemed: 7, telepharm: 17,
-        refer: 1, returnMed: 2, lab: 3, ekg: 1, missed: 1
-      },
-      {
-        timestamp: '3/10/2569 09:15:00',
-        hospital: 'รพ.สต.บ้านแสนพัน',
-        dateStr: '3 ตุลาคม 2569',
-        dateRaw: '2026-10-03',
-        green: 13, yellow: 7, orange: 3, red: 1, black: 2,
-        doctor: 15, telemed: 11, telepharm: 26,
-        refer: 2, returnMed: 4, lab: 6, ekg: 3, missed: 0
-      },
-      {
-        timestamp: '3/10/2569 10:45:00',
-        hospital: 'รพ.สต.บ้านหนองบัวสร้าง',
-        dateStr: '3 ตุลาคม 2569',
-        dateRaw: '2026-10-03',
-        green: 10, yellow: 4, orange: 1, red: 0, black: 1,
-        doctor: 11, telemed: 5, telepharm: 16,
-        refer: 1, returnMed: 2, lab: 3, ekg: 2, missed: 1
-      }
+      { timestamp: "1/10/2569 09:30:00", hospital: "รพ.สต.บ้านบอน", dateStr: "1 ตุลาคม 2569", dateRaw: "2026-10-01", green: 14, yellow: 8, orange: 3, red: 1, black: 2, doctor: 15, telemed: 13, telepharm: 28, refer: 2, returnMed: 1, lab: 5, ekg: 3, missed: 1 },
+      { timestamp: "1/10/2569 10:15:00", hospital: "รพ.สต.บ้านนาเพียงใหม่", dateStr: "1 ตุลาคม 2569", dateRaw: "2026-10-01", green: 12, yellow: 6, orange: 2, red: 0, black: 1, doctor: 10, telemed: 11, telepharm: 21, refer: 1, returnMed: 0, lab: 4, ekg: 2, missed: 0 },
+      { timestamp: "1/10/2569 11:00:00", hospital: "รพ.สต.บ้านโพธิไพศาล", dateStr: "1 ตุลาคม 2569", dateRaw: "2026-10-01", green: 18, yellow: 9, orange: 4, red: 1, black: 3, doctor: 18, telemed: 17, telepharm: 35, refer: 3, returnMed: 2, lab: 6, ekg: 4, missed: 2 },
+      { timestamp: "1/10/2569 13:20:00", hospital: "รพ.สต.บ้านห้วยกอก", dateStr: "1 ตุลาคม 2569", dateRaw: "2026-10-01", green: 9, yellow: 5, orange: 1, red: 1, black: 1, doctor: 9, telemed: 8, telepharm: 17, refer: 1, returnMed: 1, lab: 3, ekg: 1, missed: 0 },
+      { timestamp: "1/10/2569 14:05:00", hospital: "รพ.สต.บ้านแสนพัน", dateStr: "1 ตุลาคม 2569", dateRaw: "2026-10-01", green: 15, yellow: 7, orange: 2, red: 0, black: 2, doctor: 14, telemed: 12, telepharm: 26, refer: 2, returnMed: 1, lab: 4, ekg: 2, missed: 1 },
+      { timestamp: "1/10/2569 15:00:00", hospital: "รพ.สต.บ้านหนองบัวสร้าง", dateStr: "1 ตุลาคม 2569", dateRaw: "2026-10-01", green: 11, yellow: 6, orange: 3, red: 1, black: 1, doctor: 12, telemed: 10, telepharm: 22, refer: 1, returnMed: 0, lab: 3, ekg: 2, missed: 1 }
     ];
 
-    // Current date state for Calendar
-    let selectedDate = new Date(2026, 9, 1); // 1 ตุลาคม 2569
-    let calendarCursor = new Date(2026, 9, 1);
     let activeModalHospital = null;
     let activeModalDateFilter = null;
+    let calCurrentDate = new Date();
+    let selectedDateObj = new Date();
 
-    // -------------------------------------------------------------
-    // Thai Date Utilities
-    // -------------------------------------------------------------
-    function formatThaiDateFull(dateObj) {
-      const day = dateObj.getDate();
-      const month = THAI_MONTHS[dateObj.getMonth()];
-      const yearBE = dateObj.getFullYear() + 543;
-      return `${day} ${month} ${yearBE}`;
+    function formatThaiDate(date) {
+      const d = date.getDate();
+      const m = THAI_MONTHS[date.getMonth()];
+      const y = date.getFullYear() + 543;
+      return `${d} ${m} ${y}`;
+    }
+
+    // ฟังก์ชันแปลงรูปแบบวันที่ทุกรูปแบบ (ISO String, Date Object, Slash) ให้เป็นวันที่ภาษาไทยตามเวลาประเทศไทย (UTC+7)
+    function normalizeToThaiDate(val) {
+      if (!val) return '';
+      val = String(val).trim();
+
+      // หากมีชื่อเดือนภาษาไทยอยู่แล้ว ให้ใช้งานได้ทันที
+      for (let m of THAI_MONTHS) {
+        if (val.includes(m)) {
+          return val;
+        }
+      }
+
+      // ตรวจสอบกรณีรูปแบบ Google Visualization Query: Date(2026,9,1)
+      const gvizMatch = val.match(/Date\((\d+),\s*(\d+),\s*(\d+)/);
+      if (gvizMatch) {
+        const y = parseInt(gvizMatch[1], 10);
+        const m = parseInt(gvizMatch[2], 10);
+        const d = parseInt(gvizMatch[3], 10);
+        const thaiYear = y > 2400 ? y : y + 543;
+        return `${d} ${THAI_MONTHS[m]} ${thaiYear}`;
+      }
+
+      // ตรวจสอบกรณีเป็น ISO string เช่น 2026-09-30T17:00:00.000Z หรือ 2569-09-30T17:00:00.000Z
+      if (val.includes('T') || val.includes('Z')) {
+        let parsedVal = val;
+        const beYearMatch = val.match(/^(\d{4})-/);
+        if (beYearMatch && parseInt(beYearMatch[1], 10) > 2400) {
+          const ceYear = parseInt(beYearMatch[1], 10) - 543;
+          parsedVal = val.replace(/^(\d{4})/, String(ceYear));
+        }
+
+        const dObj = new Date(parsedVal);
+        if (!isNaN(dObj.getTime())) {
+          // ปรับชดเชยเวลาเป็นเวลาประเทศไทย (UTC+7)
+          const thaiMs = dObj.getTime() + (7 * 60 * 60 * 1000);
+          const thaiDate = new Date(thaiMs);
+          const d = thaiDate.getUTCDate();
+          const m = thaiDate.getUTCMonth();
+          const y = thaiDate.getUTCFullYear();
+          const thaiYear = y > 2400 ? y : y + 543;
+          return `${d} ${THAI_MONTHS[m]} ${thaiYear}`;
+        }
+      }
+
+      // ตรวจสอบกรณี YYYY-MM-DD
+      const ymdMatch = val.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (ymdMatch) {
+        let y = parseInt(ymdMatch[1], 10);
+        const mIndex = parseInt(ymdMatch[2], 10) - 1;
+        const d = parseInt(ymdMatch[3], 10);
+        const thaiYear = y > 2400 ? y : y + 543;
+        if (mIndex >= 0 && mIndex < 12) {
+          return `${d} ${THAI_MONTHS[mIndex]} ${thaiYear}`;
+        }
+      }
+
+      // ตรวจสอบกรณี D/M/YYYY หรือ D/M/BE
+      const slashMatch = val.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (slashMatch) {
+        const d = parseInt(slashMatch[1], 10);
+        const mIndex = parseInt(slashMatch[2], 10) - 1;
+        let y = parseInt(slashMatch[3], 10);
+        const thaiYear = y > 2400 ? y : y + 543;
+        if (mIndex >= 0 && mIndex < 12) {
+          return `${d} ${THAI_MONTHS[mIndex]} ${thaiYear}`;
+        }
+      }
+
+      // หากเป็นวันที่ทั่วไปให้ลองแปลงผ่าน Date object
+      const fallbackDate = new Date(val);
+      if (!isNaN(fallbackDate.getTime())) {
+        return formatThaiDate(fallbackDate);
+      }
+
+      return val;
     }
 
     function updateLiveDateTime() {
       const now = new Date();
-      const day = now.getDate();
-      const month = THAI_MONTHS[now.getMonth()];
-      const yearBE = now.getFullYear() + 543;
-      const hours = String(now.getHours()).padStart(2, '0');
-      const mins = String(now.getMinutes()).padStart(2, '0');
-      const formatted = `${day} ${month} ${yearBE} เวลา ${hours}.${mins} น.`;
-
+      const d = now.getDate();
+      const m = THAI_MONTHS[now.getMonth()];
+      const y = now.getFullYear() + 543;
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
       const el = document.getElementById('currentDateTimeDisplay');
       if (el) {
-        el.innerHTML = `<i class="fa-regular fa-clock text-brand-600 mr-2"></i><span>${formatted}</span>`;
+        const span = el.querySelector('span');
+        if (span) {
+          span.textContent = `${d} ${m} ${y} เวลา ${hh}.${mm} น.`;
+        }
       }
     }
 
     function initDefaultDate() {
-      const now = new Date();
-      selectedDate = now;
-      calendarCursor = new Date(now.getFullYear(), now.getMonth(), 1);
-      
-      const thaiFormatted = formatThaiDateFull(selectedDate);
-      document.getElementById('displayThaiDate').textContent = thaiFormatted;
-      document.getElementById('serviceDate').value = thaiFormatted;
+      selectedDateObj = new Date();
+      const formatted = formatThaiDate(selectedDateObj);
+      const displayEl = document.getElementById('displayThaiDate');
+      const inputEl = document.getElementById('serviceDate');
+      if (displayEl) displayEl.textContent = formatted;
+      if (inputEl) inputEl.value = formatted;
     }
 
     function openThaiCalendar() {
+      calCurrentDate = new Date(selectedDateObj.getTime());
       renderCalendar();
-      document.getElementById('calendarModal').classList.remove('hidden');
+      const modal = document.getElementById('calendarModal');
+      if (modal) modal.classList.remove('hidden');
     }
 
     function closeThaiCalendar() {
-      document.getElementById('calendarModal').classList.add('hidden');
+      const modal = document.getElementById('calendarModal');
+      if (modal) modal.classList.add('hidden');
     }
 
-    function changeCalMonth(delta) {
-      calendarCursor.setMonth(calendarCursor.getMonth() + delta);
+    function changeCalMonth(offset) {
+      calCurrentDate.setMonth(calCurrentDate.getMonth() + offset);
       renderCalendar();
     }
 
     function setCalToToday() {
-      selectedDate = new Date();
-      calendarCursor = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-      applySelectedDate();
+      selectedDateObj = new Date();
+      calCurrentDate = new Date();
+      const formatted = formatThaiDate(selectedDateObj);
+      const displayEl = document.getElementById('displayThaiDate');
+      const inputEl = document.getElementById('serviceDate');
+      if (displayEl) displayEl.textContent = formatted;
+      if (inputEl) inputEl.value = formatted;
       closeThaiCalendar();
     }
 
-    function applySelectedDate() {
-      const thaiFormatted = formatThaiDateFull(selectedDate);
-      document.getElementById('displayThaiDate').textContent = thaiFormatted;
-      document.getElementById('serviceDate').value = thaiFormatted;
-    }
-
-    function selectDateFromCalendar(year, month, day) {
-      selectedDate = new Date(year, month, day);
-      applySelectedDate();
+    function selectCalDate(day, month, year) {
+      selectedDateObj = new Date(year, month, day);
+      const formatted = formatThaiDate(selectedDateObj);
+      const displayEl = document.getElementById('displayThaiDate');
+      const inputEl = document.getElementById('serviceDate');
+      if (displayEl) displayEl.textContent = formatted;
+      if (inputEl) inputEl.value = formatted;
       closeThaiCalendar();
     }
 
     function renderCalendar() {
-      const year = calendarCursor.getFullYear();
-      const month = calendarCursor.getMonth();
-      const yearBE = year + 543;
-
-      document.getElementById('calMonthYearText').textContent = `${THAI_MONTHS[month]} ${yearBE}`;
-
-      const firstDayIndex = new Date(year, month, 1).getDay(); // 0 is Sunday
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const prevMonthDays = new Date(year, month, 0).getDate();
-
+      const monthYearText = document.getElementById('calMonthYearText');
       const grid = document.getElementById('calendarGrid');
+      if (!monthYearText || !grid) return;
+
+      const year = calCurrentDate.getFullYear();
+      const month = calCurrentDate.getMonth();
+      monthYearText.textContent = `${THAI_MONTHS[month]} ${year + 543}`;
+
       grid.innerHTML = '';
 
-      // Previous month trailing days
-      for (let i = firstDayIndex - 1; i >= 0; i--) {
-        const d = prevMonthDays - i;
-        const span = document.createElement('span');
-        span.className = 'py-2 text-slate-300 text-xs';
-        span.textContent = d;
-        grid.appendChild(span);
+      const firstDay = new Date(year, month, 1).getDay(); // 0 = Sunday
+      const totalDays = new Date(year, month + 1, 0).getDate();
+
+      // Blank slots before the first day of the month
+      for (let i = 0; i < firstDay; i++) {
+        const blank = document.createElement('div');
+        blank.className = 'py-2';
+        grid.appendChild(blank);
       }
 
-      // Current month active days
-      for (let day = 1; day <= daysInMonth; day++) {
+      // Render days of the month
+      const today = new Date();
+      for (let d = 1; d <= totalDays; d++) {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.textContent = day;
-        
-        const isSelected = selectedDate.getDate() === day &&
-                           selectedDate.getMonth() === month &&
-                           selectedDate.getFullYear() === year;
+        const isToday = (today.getDate() === d && today.getMonth() === month && today.getFullYear() === year);
+        const isSelected = (selectedDateObj.getDate() === d && selectedDateObj.getMonth() === month && selectedDateObj.getFullYear() === year);
 
-        const dayOfWeek = new Date(year, month, day).getDay();
-        const isSunday = dayOfWeek === 0;
-
-        let cls = 'py-2 rounded-xl text-xs font-medium transition-colors ';
+        let classes = 'w-9 h-9 mx-auto rounded-full flex items-center justify-center font-medium transition-all text-xs sm:text-sm ';
         if (isSelected) {
-          cls += 'bg-brand-600 text-white font-bold shadow-sm';
-        } else if (isSunday) {
-          cls += 'text-rose-600 hover:bg-rose-50';
+          classes += 'bg-brand-600 text-white font-bold shadow-md shadow-brand-600/30 ring-2 ring-brand-300';
+        } else if (isToday) {
+          classes += 'bg-brand-50 text-brand-700 font-bold border border-brand-300';
         } else {
-          cls += 'text-slate-700 hover:bg-slate-100';
+          classes += 'text-slate-700 hover:bg-slate-100';
         }
 
-        btn.className = cls;
-        btn.onclick = () => selectDateFromCalendar(year, month, day);
+        btn.className = classes;
+        btn.textContent = d;
+        btn.onclick = () => selectCalDate(d, month, year);
         grid.appendChild(btn);
       }
     }
 
     // -------------------------------------------------------------
-    // Telepharmacy Auto Calculation
+    // Telepharmacy & Total Patients Auto Calculation
     // -------------------------------------------------------------
     function calculateTelepharmacy() {
       const doc = parseInt(document.getElementById('serviceDoctor').value) || 0;
       const tele = parseInt(document.getElementById('serviceTelemed').value) || 0;
       const totalPharm = doc + tele;
       document.getElementById('serviceTelepharm').value = totalPharm;
+    }
+
+    function calculateTotalPatients() {
+      const green = parseInt(document.getElementById('colorGreen').value) || 0;
+      const yellow = parseInt(document.getElementById('colorYellow').value) || 0;
+      const orange = parseInt(document.getElementById('colorOrange').value) || 0;
+      const red = parseInt(document.getElementById('colorRed').value) || 0;
+      const black = parseInt(document.getElementById('colorBlack').value) || 0;
+      const total = green + yellow + orange + red + black;
+
+      const el = document.getElementById('displayTotalPatients');
+      if (el) {
+        el.textContent = total.toLocaleString();
+      }
     }
 
     // -------------------------------------------------------------
@@ -1297,6 +1343,7 @@
       document.getElementById('recordForm').reset();
       initDefaultDate();
       calculateTelepharmacy();
+      calculateTotalPatients();
 
       // Show Popup Modal
       document.getElementById('successModal').classList.remove('hidden');
@@ -1408,8 +1455,8 @@
 
       const hospRecords = clinicRecords.filter(r => r.hospital === activeModalHospital);
 
-      // Collect unique dates registered for this hospital
-      const uniqueDates = [...new Set(hospRecords.map(r => r.dateStr))];
+      // รวบรวมวันที่ไม่ซ้ำกัน และแปลงให้อยู่ในรูปแบบภาษาไทยอย่างถูกต้อง
+      const uniqueDates = [...new Set(hospRecords.map(r => normalizeToThaiDate(r.dateStr)).filter(Boolean))];
 
       // Update date pills container
       const pillsContainer = document.getElementById('modalDatePills');
@@ -1442,9 +1489,9 @@
         });
       }
 
-      // Filter dataset according to active date filter
+      // Filter dataset according to active date filter (เปรียบเทียบด้วย normalized date)
       const targetRecords = activeModalDateFilter 
-        ? hospRecords.filter(r => r.dateStr === activeModalDateFilter)
+        ? hospRecords.filter(r => normalizeToThaiDate(r.dateStr) === activeModalDateFilter)
         : hospRecords;
 
       // Update Subtitle & Scope
@@ -1517,7 +1564,10 @@
           const res = await fetch(`${targetScriptUrl}?action=read`);
           const json = await res.json();
           if (json.status === 'success' && Array.isArray(json.records) && json.records.length > 0) {
-            clinicRecords = json.records;
+            clinicRecords = json.records.map(r => ({
+              ...r,
+              dateStr: normalizeToThaiDate(r.dateStr)
+            }));
             renderDashboard();
             return;
           }
@@ -1544,10 +1594,11 @@
             if (!c || !c[1] || !c[1].v) return; // Must have hospital name
 
             // Map columns: A:timestamp, B:hospital, C:date, D:green, E:yellow, F:orange, G:red, H:black, I:doc, J:telemed, K:telepharm, L:refer, M:return, N:lab, O:ekg, P:missed
+            const rawDate = c[2] ? (c[2].f || c[2].v || '') : '';
             const record = {
               timestamp: c[0] ? String(c[0].v || '') : '',
               hospital: c[1] ? String(c[1].v || '').trim() : '',
-              dateStr: c[2] ? String(c[2].v || '').trim() : '',
+              dateStr: normalizeToThaiDate(rawDate),
               dateRaw: '',
               green: c[3] ? Number(c[3].v) || 0 : 0,
               yellow: c[4] ? Number(c[4].v) || 0 : 0,
@@ -1604,6 +1655,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       initDefaultDate();
       calculateTelepharmacy();
+      calculateTotalPatients();
       updateLiveDateTime();
       setInterval(updateLiveDateTime, 1000);
       
