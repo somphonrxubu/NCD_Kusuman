@@ -426,8 +426,7 @@
 
     <!-- VIEW 3: SUMMARY DASHBOARD -->
     <section id="viewSummary" class="hidden fade-in space-y-8 pb-16">
-      
-      <!-- Top header bar with Back button & Controls -->
+      <!-- TOP HEADER BAR WITH BACK BUTTON & CONTROLS -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <button onclick="navigateTo('home')" class="inline-flex items-center text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors mb-2">
@@ -439,8 +438,9 @@
         </div>
 
         <div class="flex items-center space-x-2">
-          <button onclick="fetchSheetData()" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold shadow-2xs transition-all">
-            <i class="fa-solid fa-rotate mr-1.5 text-brand-600"></i> รีเฟรชข้อมูล
+          <button id="btnRefreshData" onclick="handleRefreshData()" class="inline-flex items-center px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 active:scale-95 text-xs font-semibold shadow-2xs transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+            <i id="refreshIcon" class="fa-solid fa-rotate mr-1.5 text-brand-600"></i>
+            <span id="refreshText">รีเฟรชข้อมูล</span>
           </button>
         </div>
       </div>
@@ -1032,6 +1032,12 @@
     </div>
   </div>
 
+  <!-- TOAST NOTIFICATION FOR REFRESH FEEDBACK -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center space-x-2 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-medium border border-slate-700">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+    <span id="toastMessage">อัปเดตข้อมูลเรียบร้อยแล้ว</span>
+  </div>
+
   <script>
     const APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz3jtUFRJlEFhLiytftlhLYCRcwy6TYHNBDtnWiziHkK3M9bNlvThEL3AAGTVzMY88Pdg/exec";
     const SPREADSHEET_ID = "1R6csij5mYaJApsgFPR1WvVAIYbDnFti00AkV4_7WMNI";
@@ -1377,6 +1383,50 @@
       navigateTo('home');
     }
 
+    // Toast Notification Handler
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toastNotification');
+      const msgEl = document.getElementById('toastMessage');
+      const iconEl = document.getElementById('toastIcon');
+      if (!toast || !msgEl) return;
+
+      msgEl.textContent = message;
+      if (type === 'error') {
+        iconEl.className = 'fa-solid fa-circle-exclamation text-rose-400 text-base';
+      } else {
+        iconEl.className = 'fa-solid fa-circle-check text-emerald-400 text-base';
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 3000);
+    }
+
+    // Interactive Refresh Data Button Handler
+    async function handleRefreshData() {
+      const btn = document.getElementById('btnRefreshData');
+      const icon = document.getElementById('refreshIcon');
+      const text = document.getElementById('refreshText');
+      
+      if (btn) btn.disabled = true;
+      if (icon) icon.classList.add('animate-spin');
+      if (text) text.textContent = 'กำลังดึงข้อมูล...';
+
+      try {
+        await fetchSheetData();
+        showToast('อัปเดตข้อมูลล่าสุดเรียบร้อยแล้ว');
+      } catch (e) {
+        console.error('Refresh error:', e);
+        showToast('ไม่สามารถอัปเดตข้อมูลได้ กรุณาลองใหม่อีกครั้ง', 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+        if (icon) icon.classList.remove('animate-spin');
+        if (text) text.textContent = 'รีเฟรชข้อมูล';
+      }
+    }
+
     // -------------------------------------------------------------
     // Dashboard Summary Calculations (ภาพรวม คปสอ.)
     // -------------------------------------------------------------
@@ -1451,6 +1501,11 @@
           el.textContent = `${hospCounts[hName].toLocaleString()} ราย`;
         }
       });
+
+      // Automatically refresh modal view if currently open
+      if (activeModalHospital && !document.getElementById('hospitalModal').classList.contains('hidden')) {
+        renderHospitalModalContent();
+      }
     }
 
     // -------------------------------------------------------------
@@ -1588,6 +1643,9 @@
     // Live Google Sheet Data Fetching via Google Visualization API
     // -------------------------------------------------------------
     async function fetchSheetData() {
+      // Cache-buster timestamp parameter
+      const timestamp = Date.now();
+
       // 1. ลองดึงข้อมูลผ่าน Apps Script Web App API ก่อน
       const targetScriptUrl = (typeof APPS_SCRIPT_WEB_APP_URL !== 'undefined' && APPS_SCRIPT_WEB_APP_URL)
         ? APPS_SCRIPT_WEB_APP_URL
@@ -1595,7 +1653,7 @@
 
       if (targetScriptUrl && targetScriptUrl.startsWith('http')) {
         try {
-          const res = await fetch(`${targetScriptUrl}?action=read`);
+          const res = await fetch(`${targetScriptUrl}?action=read&_t=${timestamp}`);
           const json = await res.json();
           if (json.status === 'success' && Array.isArray(json.records) && json.records.length > 0) {
             clinicRecords = json.records.map(r => ({
@@ -1610,7 +1668,7 @@
         }
       }
 
-      const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+      const gvizUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&_t=${timestamp}`;
       
       try {
         const response = await fetch(gvizUrl);
